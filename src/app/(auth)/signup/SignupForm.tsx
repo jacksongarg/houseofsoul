@@ -61,21 +61,32 @@ export function SignupForm() {
       }
 
       if (data.user) {
+        // Check if email confirmation is required
+        if (data.user.identities?.length === 0) {
+          setError('Please check your email to confirm your account, then sign in.');
+          setIsLoading(false);
+          return;
+        }
+
         // Wait for user record to be created by trigger
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Fetch user profile
-        const { data: userData } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('*')
           .eq('id', data.user.id)
           .single();
 
+        if (userError) {
+          console.error('Error fetching user:', userError);
+        }
+
         setUser(userData);
 
         // If we have a partial soul profile, save it
         if (hasProfile) {
-          await supabase.from('soul_profiles').upsert({
+          const { error: profileError } = await supabase.from('soul_profiles').upsert({
             user_id: data.user.id,
             full_name: partialProfile.full_name,
             date_of_birth: partialProfile.date_of_birth,
@@ -96,6 +107,11 @@ export function SignupForm() {
             onboarding_step: 5,
             is_complete: true,
           });
+
+          if (profileError) {
+            console.error('Error saving soul profile:', profileError);
+            // Don't block the flow, continue to dashboard
+          }
 
           resetOnboarding();
         }

@@ -46,7 +46,12 @@ export function OnboardingLayout({
           <Link href="/" className="text-2xl font-serif tracking-wide text-gold">
             House of Soul
           </Link>
-          <span className="text-sm text-ivory/40">Soul Profile</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-ivory/40 hidden sm:block">Already have an account?</span>
+            <Link href="/login" className="text-sm text-gold hover:text-gold/80 transition-colors">
+              Sign In
+            </Link>
+          </div>
         </div>
       </header>
 

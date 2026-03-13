@@ -24,9 +24,14 @@ export default function Home() {
             <Link href="#membership" className="text-sm tracking-wider text-ivory/80 hover:text-gold transition-colors">
               Membership
             </Link>
-            <Button variant="outline" size="sm">
-              Begin
-            </Button>
+            <Link href="/login" className="text-sm tracking-wider text-ivory/80 hover:text-gold transition-colors">
+              Sign In
+            </Link>
+            <Link href="/profile">
+              <Button variant="outline" size="sm">
+                Begin
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
