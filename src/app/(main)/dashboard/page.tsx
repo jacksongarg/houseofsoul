@@ -22,39 +22,95 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useAuthStore } from '@/stores/auth-store';
 import { useProfileStore } from '@/stores/profile-store';
+import { supabase } from '@/lib/supabase';
 import { SoulInsight } from '@/lib/ai-soul';
+import { SoulProfile } from '@/types/database';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuthStore();
-  const { partialProfile } = useProfileStore();
+  const { user, isAuthenticated, checkAuth } = useAuthStore();
+  const { partialProfile, updatePartialProfile } = useProfileStore();
+  const [soulProfile, setSoulProfile] = useState<Partial<SoulProfile> | null>(null);
   const [insights, setInsights] = useState<SoulInsight | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Fetch profile from database on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setIsLoading(true);
+
+      // Check auth state
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // Fetch soul profile from database
+        const { data: profile } = await supabase
+          .from('soul_profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (profile) {
+          setSoulProfile(profile);
+          // Also update the store for consistency
+          updatePartialProfile({
+            full_name: profile.full_name,
+            date_of_birth: profile.date_of_birth,
+            time_of_birth: profile.time_of_birth,
+            place_of_birth: profile.place_of_birth,
+            gender: profile.gender,
+            pronouns: profile.pronouns,
+            relationship_status: profile.relationship_status,
+            current_city: profile.current_city,
+            life_goals: profile.life_goals,
+            pain_points: profile.pain_points,
+            areas_needing_support: profile.areas_needing_support,
+            spiritual_beliefs: profile.spiritual_beliefs,
+            modality_openness: profile.modality_openness,
+            budget_tier: profile.budget_tier,
+            style_preferences: profile.style_preferences,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Fall back to localStorage profile
+      if (partialProfile.full_name && partialProfile.date_of_birth) {
+        setSoulProfile(partialProfile as Partial<SoulProfile>);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
   const hasProfile = !!(
-    partialProfile.full_name &&
-    partialProfile.date_of_birth &&
-    partialProfile.place_of_birth
+    soulProfile?.full_name &&
+    soulProfile?.date_of_birth &&
+    soulProfile?.place_of_birth
   );
 
   useEffect(() => {
-    if (hasProfile && !insights) {
+    if (hasProfile && !insights && !isLoading) {
       generateInsights();
     }
-  }, [hasProfile]);
+  }, [hasProfile, isLoading]);
 
   const generateInsights = async () => {
-    setIsLoading(true);
     setError('');
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+
       const response = await fetch('/api/ai/insights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           profile: {
-            ...partialProfile,
-            user_id: user?.id,
+            ...soulProfile,
+            user_id: session?.user?.id,
           },
         }),
       });
@@ -121,7 +177,7 @@ export default function DashboardPage() {
               Welcome back
             </p>
             <h1 className="text-3xl md:text-4xl font-serif">
-              {partialProfile.full_name || 'Seeker'}
+              {soulProfile?.full_name || 'Seeker'}
             </h1>
           </motion.div>
 
