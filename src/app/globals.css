@@ -29,15 +29,15 @@
   --celestial-blue: #8AA8B8;
   --celestial-rose: #B8A0A8;
 
-  /* Semantic */
-  --background: var(--ivory);
-  --background-alt: var(--cream);
-  --foreground: var(--onyx);
-  --foreground-muted: var(--slate);
-  --border: var(--stone);
-  --border-dark: var(--stone-dark);
+  /* Semantic - Default to dark luxury theme */
+  --background: var(--onyx);
+  --background-alt: var(--charcoal);
+  --foreground: var(--ivory);
+  --foreground-muted: var(--stone-dark);
+  --border: var(--graphite);
+  --border-dark: var(--slate);
   --accent: var(--gold);
-  --accent-foreground: var(--onyx);
+  --accent-foreground: var(--ivory);
 
   /* Typography Scale */
   --font-size-xs: 0.75rem;
@@ -62,26 +62,14 @@
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark mode - luxurious dark theme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--onyx);
-    --background-alt: var(--charcoal);
-    --foreground: var(--ivory);
-    --foreground-muted: var(--stone-dark);
-    --border: var(--graphite);
-    --border-dark: var(--slate);
-  }
-}
-
-/* Force dark mode for luxury feel */
-.dark {
-  --background: var(--onyx);
-  --background-alt: var(--charcoal);
-  --foreground: var(--ivory);
-  --foreground-muted: var(--stone-dark);
-  --border: var(--graphite);
-  --border-dark: var(--slate);
+/* Light mode option (if needed) */
+.light {
+  --background: var(--ivory);
+  --background-alt: var(--cream);
+  --foreground: var(--onyx);
+  --foreground-muted: var(--slate);
+  --border: var(--stone);
+  --border-dark: var(--stone-dark);
 }
 
 @theme inline {
